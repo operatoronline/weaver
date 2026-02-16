@@ -56,7 +56,7 @@ func (cb *ContextBuilder) getIdentity() string {
 	// Build tools section dynamically
 	toolsSection := cb.buildToolsSection()
 
-	return fmt.Sprintf(`# weaver 🦞
+	return fmt.Sprintf(`# weaver 🕸️
 
 You are weaver, a helpful AI assistant.
 
