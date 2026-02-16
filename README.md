@@ -3,15 +3,14 @@
 
   <h1>Weaver: Ultra-Efficient AI Assistant in Go</h1>
 
-  <h3>$10 Hardware · 10MB RAM · 1s Boot · 皮皮虾，我们走！</h3>
+  <h3>$10 Hardware · 10MB RAM · 1s Boot · 🕸️</h3>
 
   <p>
     <img src="https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go&logoColor=white" alt="Go">
     <img src="https://img.shields.io/badge/Arch-x86__64%2C%20ARM64%2C%20RISC--V-blue" alt="Hardware">
     <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
     <br>
-    <a href="https://weaver.io"><img src="https://img.shields.io/badge/Website-weaver.io-blue?style=flat&logo=google-chrome&logoColor=white" alt="Website"></a>
-    <a href="https://x.com/SipeedIO"><img src="https://img.shields.io/badge/X_(Twitter)-SipeedIO-black?style=flat&logo=x&logoColor=white" alt="Twitter"></a>
+    <a href="https://weaver.onl"><img src="https://img.shields.io/badge/Website-weaver.onl-blue?style=flat&logo=google-chrome&logoColor=white" alt="Website"></a>
   </p>
 
  [中文](README.zh.md) | [日本語](README.ja.md) | **English**
