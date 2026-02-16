@@ -19,8 +19,8 @@ To show our appreciation, developers who officially join our community operation
 
 Not a developer? You can still help! We welcome users to post **Weaver reviews or tutorials**.
 
-* **Twitter:** Use the tag **#weaver** and mention **@SipeedIO**.
-* **Bilibili:** Mention **@Sipeed矽速科技** or send us a DM.
+* **Twitter:** Use the tag **#weaver** and mention **@Operator OnlineIO**.
+* **Bilibili:** Mention **@Operator Online矽速科技** or send us a DM.
 We will be rewarding high-quality content creators with the same perks as our community developers!
 
 ---
@@ -54,7 +54,7 @@ We are looking for experts in the following areas:
 * **The Mission:** Weaver started as a "vibe coding" experiment; now we want to use AI to manage it.
 * **Focus:** Automating builds with AI and exploring AI-driven issue resolution.
 
-**How to Apply:** > If you are interested in any of the roles above, please send an email to support@sipeed.com with the subject line: [Apply: Weaver Expert Volunteer] + Your Desired Role.   
+**How to Apply:** > If you are interested in any of the roles above, please send an email to support@operator.onl.com with the subject line: [Apply: Weaver Expert Volunteer] + Your Desired Role.   
 Please include a brief introduction and any relevant experience or portfolio links. We will review all applications and grant project permissions to selected contributors!
 
 ---
@@ -99,7 +99,7 @@ If you would like to claim a task, please feel free to start a conversation by c
 **Everything is open to your creativity!** If you have a wild idea, just PR it.
 
 1. **The Fast Track:** Once you have at least **one merged PR**, you are eligible to join our **Developer Discord** to help plan the future of Weaver.
-2. **The Application Track:** If you haven’t submitted a PR yet but want to dive in, email **support@sipeed.com** with the subject:
+2. **The Application Track:** If you haven’t submitted a PR yet but want to dive in, email **support@operator.onl.com** with the subject:
 > `[Apply Join Weaver Dev Group] + Your GitHub Account`
 > Include the role you're interested in and any evidence of your development experience.
 

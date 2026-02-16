@@ -1236,7 +1236,7 @@ func skillsHelp() {
 	fmt.Println()
 	fmt.Println("Examples:")
 	fmt.Println("  weaver skills list")
-	fmt.Println("  weaver skills install sipeed/weaver-skills/weather")
+	fmt.Println("  weaver skills install operator.onl/weaver-skills/weather")
 	fmt.Println("  weaver skills install-builtin")
 	fmt.Println("  weaver skills list-builtin")
 	fmt.Println("  weaver skills remove weather")
@@ -1263,7 +1263,7 @@ func skillsListCmd(loader *skills.SkillsLoader) {
 func skillsInstallCmd(installer *skills.SkillInstaller) {
 	if len(os.Args) < 4 {
 		fmt.Println("Usage: weaver skills install <github-repo>")
-		fmt.Println("Example: weaver skills install sipeed/weaver-skills/weather")
+		fmt.Println("Example: weaver skills install operator.onl/weaver-skills/weather")
 		return
 	}
 

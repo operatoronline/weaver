@@ -11,7 +11,7 @@
     <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
     <br>
     <a href="https://weaver.io"><img src="https://img.shields.io/badge/Website-weaver.io-blue?style=flat&logo=google-chrome&logoColor=white" alt="Website"></a>
-    <a href="https://x.com/SipeedIO"><img src="https://img.shields.io/badge/X_(Twitter)-SipeedIO-black?style=flat&logo=x&logoColor=white" alt="Twitter"></a>
+    <a href="https://x.com/Operator OnlineIO"><img src="https://img.shields.io/badge/X_(Twitter)-Operator OnlineIO-black?style=flat&logo=x&logoColor=white" alt="Twitter"></a>
   </p>
 
  **中文** | [日本語](README.ja.md) | [English](README.md)
@@ -43,7 +43,7 @@
 > [!CAUTION]
 > **🚨 SECURITY & OFFICIAL CHANNELS / 安全声明**
 > * **无加密货币 (NO CRYPTO):** Weaver **没有** 发行任何官方代币、Token 或虚拟货币。所有在 `pump.fun` 或其他交易平台上的相关声称均为 **诈骗**。
-> * **官方域名:** 唯一的官方网站是 **[weaver.io](https://weaver.io)**，公司官网是 **[sipeed.com](https://sipeed.com)**。
+> * **官方域名:** 唯一的官方网站是 **[weaver.io](https://weaver.io)**，公司官网是 **[operator.onl.com](https://operator.onl.com)**。
 > * **警惕:** 许多 `.ai/.org/.com/.net/...` 后缀的域名被第三方抢注，请勿轻信。
 > * **注意:** weaver正在初期的快速功能开发阶段，可能有尚未修复的网络安全问题，在1.0正式版发布前，请不要将其部署到生产环境中
 > * **注意:** weaver最近合并了大量PRs，近期版本可能内存占用较大(10~20MB)，我们将在功能较为收敛后进行资源占用优化.
