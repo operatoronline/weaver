@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.jpg" alt="Weaver" width="512">
+  <img src="assets/logo.png" alt="Weaver" width="512">
 
   <h1>Weaver: Ultra-Efficient AI Assistant in Go</h1>
 
@@ -18,7 +18,7 @@
 
 ---
 
-🦐 Weaver is an ultra-lightweight personal AI Assistant inspired by [nanobot](https://github.com/HKUDS/nanobot), refactored from the ground up in Go through a self-bootstrapping process, where the AI agent itself drove the entire architectural migration and code optimization.
+🕸️ Weaver is an ultra-lightweight personal AI Assistant inspired by [nanobot](https://github.com/HKUDS/nanobot), refactored from the ground up in Go through a self-bootstrapping process, where the AI agent itself drove the entire architectural migration and code optimization.
 
 ⚡️ Runs on $10 hardware with <10MB RAM: That's 99% less memory than OpenClaw and 98% cheaper than a Mac mini!
 
@@ -53,7 +53,7 @@
 2026-02-13 🎉 Weaver hit 5000 stars in 4days! Thank you for the community! There are so many PRs&issues come in (during Chinese New Year holidays), we are finalizing the Project Roadmap and setting up the Developer Group to accelerate Weaver's development.  
 🚀 Call to Action: Please submit your feature requests in GitHub Discussions. We will review and prioritize them during our upcoming weekly meeting.
 
-2026-02-09 🎉 Weaver Launched! Built in 1 day to bring AI Agents to $10 hardware with <10MB RAM. 🦐 Weaver，Let's Go！
+2026-02-09 🎉 Weaver Launched! Built in 1 day to bring AI Agents to $10 hardware with <10MB RAM. 🕸️ Weaver，Let's Go！
 
 ## ✨ Features
 

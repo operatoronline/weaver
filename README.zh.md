@@ -1,5 +1,5 @@
 <div align="center">
-<img src="assets/logo.jpg" alt="Weaver" width="512">
+<img src="assets/logo.png" alt="Weaver" width="512">
 
 <h1>Weaver: 基于Go语言的超高效 AI 助手</h1>
 
@@ -19,7 +19,7 @@
 
 ---
 
-🦐 **Weaver** 是一个受 [nanobot](https://github.com/HKUDS/nanobot) 启发的超轻量级个人 AI 助手。它采用 **Go 语言** 从零重构，经历了一个“自举”过程——即由 AI Agent 自身驱动了整个架构迁移和代码优化。
+🕸️ **Weaver** 是一个受 [nanobot](https://github.com/HKUDS/nanobot) 启发的超轻量级个人 AI 助手。它采用 **Go 语言** 从零重构，经历了一个“自举”过程——即由 AI Agent 自身驱动了整个架构迁移和代码优化。
 
 ⚡️ **极致轻量**：可在 **10 美元** 的硬件上运行，内存占用 **<10MB**。这意味着比 OpenClaw 节省 99% 的内存，比 Mac mini 便宜 98%！
 
@@ -55,7 +55,7 @@
 2026-02-13 🎉 **Weaver 在 4 天内突破 5000 Stars！** 感谢社区的支持！由于正值中国春节假期，PR 和 Issue 涌入较多，我们正在利用这段时间敲定 **项目路线图 (Roadmap)** 并组建 **开发者群组**，以便加速 Weaver 的开发。
 🚀 **行动号召：** 请在 GitHub Discussions 中提交您的功能请求 (Feature Requests)。我们将在接下来的周会上进行审查和优先级排序。
 
-2026-02-09 🎉 **Weaver 正式发布！** 仅用 1 天构建，旨在将 AI Agent 带入 10 美元硬件与 <10MB 内存的世界。🦐 Weaver（皮皮虾），我们走！
+2026-02-09 🎉 **Weaver 正式发布！** 仅用 1 天构建，旨在将 AI Agent 带入 10 美元硬件与 <10MB 内存的世界。🕸️ Weaver（皮皮虾），我们走！
 
 ## ✨ 特性
 
