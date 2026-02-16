@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/sipeed/picoclaw/pkg/bus"
-	"github.com/sipeed/picoclaw/pkg/config"
-	"github.com/sipeed/picoclaw/pkg/logger"
-	"github.com/sipeed/picoclaw/pkg/utils"
-	"github.com/sipeed/picoclaw/pkg/voice"
+	"github.com/operatoronline/weaver/pkg/bus"
+	"github.com/operatoronline/weaver/pkg/config"
+	"github.com/operatoronline/weaver/pkg/logger"
+	"github.com/operatoronline/weaver/pkg/utils"
+	"github.com/operatoronline/weaver/pkg/voice"
 )
 
 const (

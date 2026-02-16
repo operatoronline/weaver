@@ -1,4 +1,4 @@
-# PicoClaw (Operator Edition)
+# Weaver (Operator Edition)
 
 Managed AI agents for high-density Docker orchestration.
 
@@ -19,15 +19,15 @@ Managed AI agents for high-density Docker orchestration.
    To spawn a new agent:
    ```bash
    docker run --rm \
-     -v $(pwd)/workspaces/agent-1:/root/.picoclaw/workspace \
+     -v $(pwd)/workspaces/agent-1:/root/.weaver/workspace \
      -e GEMINI_API_KEY=$GEMINI_API_KEY \
-     picoclaw agent -m "Your task"
+     weaver agent -m "Your task"
    ```
 
 ## Development
 
 - `make build`: Build the Go binary.
-- `docker compose up picoclaw-gateway`: Start the master gateway for external channels.
+- `docker compose up weaver-gateway`: Start the master gateway for external channels.
 
 ## Architecture
 

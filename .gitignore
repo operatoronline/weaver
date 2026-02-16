@@ -8,14 +8,14 @@ build/
 *.dylib
 *.test
 *.out
-/picoclaw
-/picoclaw-test
-cmd/picoclaw/workspace
+/weaver
+/weaver-test
+cmd/weaver/workspace
 
-# Picoclaw specific
+# Weaver specific
 
-# PicoClaw
-.picoclaw/
+# Weaver
+.weaver/
 config.json
 sessions/
 build/

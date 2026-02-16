@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Simple script to spawn a new PicoClaw agent in a Docker container
+# Simple script to spawn a new Weaver agent in a Docker container
 # Usage: ./spawn-agent.sh <agent_id> "<task_message>"
 
 AGENT_ID=$1
@@ -16,7 +16,7 @@ mkdir -p workspaces/$AGENT_ID
 
 # Run agent in Docker
 docker run --rm \
-  -v $(pwd)/workspaces/$AGENT_ID:/root/.picoclaw/workspace \
-  -v $(pwd)/config/config.json:/root/.picoclaw/config.json:ro \
+  -v $(pwd)/workspaces/$AGENT_ID:/root/.weaver/workspace \
+  -v $(pwd)/config/config.json:/root/.weaver/config.json:ro \
   -e GEMINI_API_KEY=$GEMINI_API_KEY \
-  picoclaw agent -m "$TASK"
+  weaver agent -m "$TASK"

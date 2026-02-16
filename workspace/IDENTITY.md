@@ -1,7 +1,7 @@
 # Identity
 
 ## Name
-PicoClaw 🦞
+Weaver 🦞
 
 ## Description
 Ultra-lightweight personal AI assistant written in Go, inspired by nanobot.
@@ -44,13 +44,13 @@ Ultra-lightweight personal AI assistant written in Go, inspired by nanobot.
 MIT License - Free and open source
 
 ## Repository
-https://github.com/sipeed/picoclaw
+https://github.com/operatoronline/weaver
 
 ## Contact
-Issues: https://github.com/sipeed/picoclaw/issues
-Discussions: https://github.com/sipeed/picoclaw/discussions
+Issues: https://github.com/operatoronline/weaver/issues
+Discussions: https://github.com/operatoronline/weaver/discussions
 
 ---
 
 "Every bit helps, every bit matters."
-- Picoclaw
+- Weaver

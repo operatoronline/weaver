@@ -8,10 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sipeed/picoclaw/pkg/bus"
-	"github.com/sipeed/picoclaw/pkg/config"
-	"github.com/sipeed/picoclaw/pkg/providers"
-	"github.com/sipeed/picoclaw/pkg/tools"
+	"github.com/operatoronline/weaver/pkg/bus"
+	"github.com/operatoronline/weaver/pkg/config"
+	"github.com/operatoronline/weaver/pkg/providers"
+	"github.com/operatoronline/weaver/pkg/tools"
 )
 
 // mockProvider is a simple mock LLM provider for testing

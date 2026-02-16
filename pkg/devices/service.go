@@ -5,12 +5,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/sipeed/picoclaw/pkg/bus"
-	"github.com/sipeed/picoclaw/pkg/constants"
-	"github.com/sipeed/picoclaw/pkg/devices/events"
-	"github.com/sipeed/picoclaw/pkg/devices/sources"
-	"github.com/sipeed/picoclaw/pkg/logger"
-	"github.com/sipeed/picoclaw/pkg/state"
+	"github.com/operatoronline/weaver/pkg/bus"
+	"github.com/operatoronline/weaver/pkg/constants"
+	"github.com/operatoronline/weaver/pkg/devices/events"
+	"github.com/operatoronline/weaver/pkg/devices/sources"
+	"github.com/operatoronline/weaver/pkg/logger"
+	"github.com/operatoronline/weaver/pkg/state"
 )
 
 type Service struct {

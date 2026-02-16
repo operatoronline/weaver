@@ -1,7 +1,7 @@
 .git
 .gitignore
 build/
-.picoclaw/
+.weaver/
 config/
 .env
 .env.example

@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sipeed/picoclaw/pkg/config"
+	"github.com/operatoronline/weaver/pkg/config"
 )
 
 // --- Compile-time interface check ---
