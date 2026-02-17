@@ -44,6 +44,7 @@ type AgentLoop struct {
 	running        atomic.Bool
 	summarizing    sync.Map // Tracks which sessions are currently being summarized
 	channelManager *channels.Manager
+	canvasTool     *tools.CanvasTool
 }
 
 // processOptions configures how a message is processed
@@ -132,6 +133,10 @@ func NewAgentLoop(cfg *config.Config, msgBus *bus.MessageBus, provider providers
 	// Create state manager for atomic state persistence
 	stateManager := state.NewManager(workspace)
 
+	// Create canvas tool
+	canvasTool := tools.NewCanvasTool()
+	toolsRegistry.Register(canvasTool)
+
 	// Create context builder and set tools registry
 	contextBuilder := NewContextBuilder(workspace)
 	contextBuilder.SetToolsRegistry(toolsRegistry)
@@ -148,6 +153,7 @@ func NewAgentLoop(cfg *config.Config, msgBus *bus.MessageBus, provider providers
 		contextBuilder: contextBuilder,
 		tools:          toolsRegistry,
 		summarizing:    sync.Map{},
+		canvasTool:     canvasTool,
 	}
 }
 
@@ -217,11 +223,11 @@ func (al *AgentLoop) RecordLastChatID(chatID string) error {
 	return al.state.SetLastChatID(chatID)
 }
 
-func (al *AgentLoop) ProcessDirect(ctx context.Context, content, sessionKey string) (string, error) {
+func (al *AgentLoop) ProcessDirect(ctx context.Context, content, sessionKey string) (string, []tools.UICommand, error) {
 	return al.ProcessDirectWithChannel(ctx, content, sessionKey, "cli", "direct")
 }
 
-func (al *AgentLoop) ProcessDirectWithChannel(ctx context.Context, content, sessionKey, channel, chatID string) (string, error) {
+func (al *AgentLoop) ProcessDirectWithChannel(ctx context.Context, content, sessionKey, channel, chatID string) (string, []tools.UICommand, error) {
 	msg := bus.InboundMessage{
 		Channel:    channel,
 		SenderID:   "cron",
@@ -230,7 +236,15 @@ func (al *AgentLoop) ProcessDirectWithChannel(ctx context.Context, content, sess
 		SessionKey: sessionKey,
 	}
 
-	return al.processMessage(ctx, msg)
+	response, err := al.processMessage(ctx, msg)
+	
+	// Flush any UI commands generated during processing
+	var uiCommands []tools.UICommand
+	if al.canvasTool != nil {
+		uiCommands = al.canvasTool.FlushCommands()
+	}
+
+	return response, uiCommands, err
 }
 
 // ProcessHeartbeat processes a heartbeat request without session history.
@@ -375,9 +389,14 @@ func (al *AgentLoop) runAgentLoop(ctx context.Context, opts processOptions) (str
 	al.sessions.AddMessage(opts.SessionKey, "user", opts.UserMessage)
 
 	// 4. Run LLM iteration loop
-	finalContent, iteration, err := al.runLLMIteration(ctx, messages, opts)
+	llmResponse, iteration, err := al.runLLMIteration(ctx, messages, opts)
 	if err != nil {
 		return "", err
+	}
+
+	finalContent := ""
+	if llmResponse != nil {
+		finalContent = llmResponse.Content
 	}
 
 	// If last tool had ForUser content and we already sent it, we might not need to send final response
@@ -389,7 +408,16 @@ func (al *AgentLoop) runAgentLoop(ctx context.Context, opts processOptions) (str
 	}
 
 	// 6. Save final assistant message to session
-	al.sessions.AddMessage(opts.SessionKey, "assistant", finalContent)
+	finalAssistantMsg := providers.Message{
+		Role:             "assistant",
+		Content:          finalContent,
+		ReasoningContent: "",
+	}
+	if llmResponse != nil {
+		finalAssistantMsg.ReasoningContent = llmResponse.Reasoning
+		finalAssistantMsg.ExtraContent = llmResponse.ExtraContent
+	}
+	al.sessions.AddFullMessage(opts.SessionKey, finalAssistantMsg)
 	al.sessions.Save(opts.SessionKey)
 
 	// 7. Optional: summarization
@@ -420,9 +448,9 @@ func (al *AgentLoop) runAgentLoop(ctx context.Context, opts processOptions) (str
 
 // runLLMIteration executes the LLM call loop with tool handling.
 // Returns the final content, iteration count, and any error.
-func (al *AgentLoop) runLLMIteration(ctx context.Context, messages []providers.Message, opts processOptions) (string, int, error) {
+func (al *AgentLoop) runLLMIteration(ctx context.Context, messages []providers.Message, opts processOptions) (*providers.LLMResponse, int, error) {
 	iteration := 0
-	var finalContent string
+	var lastResponse *providers.LLMResponse
 
 	for iteration < al.maxIterations {
 		iteration++
@@ -588,16 +616,17 @@ func (al *AgentLoop) runLLMIteration(ctx context.Context, messages []providers.M
 					"iteration": iteration,
 					"error":     err.Error(),
 				})
-			return "", iteration, fmt.Errorf("LLM call failed after retries: %w", err)
+			return nil, iteration, fmt.Errorf("LLM call failed after retries: %w", err)
 		}
+
+		lastResponse = response
 
 		// Check if no tool calls - we're done
 		if len(response.ToolCalls) == 0 {
-			finalContent = response.Content
 			logger.InfoCF("agent", "LLM response without tool calls (direct answer)",
 				map[string]interface{}{
 					"iteration":     iteration,
-					"content_chars": len(finalContent),
+					"content_chars": len(response.Content),
 				})
 			break
 		}
@@ -616,14 +645,17 @@ func (al *AgentLoop) runLLMIteration(ctx context.Context, messages []providers.M
 
 		// Build assistant message with tool calls
 		assistantMsg := providers.Message{
-			Role:    "assistant",
-			Content: response.Content,
+			Role:             "assistant",
+			Content:          response.Content,
+			ReasoningContent: response.Reasoning,
+			ExtraContent:     response.ExtraContent,
 		}
 		for _, tc := range response.ToolCalls {
 			argumentsJSON, _ := json.Marshal(tc.Arguments)
 			assistantMsg.ToolCalls = append(assistantMsg.ToolCalls, providers.ToolCall{
-				ID:   tc.ID,
-				Type: "function",
+				ID:           tc.ID,
+				Type:         "function",
+				ExtraContent: tc.ExtraContent,
 				Function: &providers.FunctionCall{
 					Name:      tc.Name,
 					Arguments: string(argumentsJSON),
@@ -696,7 +728,7 @@ func (al *AgentLoop) runLLMIteration(ctx context.Context, messages []providers.M
 		}
 	}
 
-	return finalContent, iteration, nil
+	return lastResponse, iteration, nil
 }
 
 // updateToolContexts updates the context for tools that need channel/chatID info.

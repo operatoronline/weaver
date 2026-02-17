@@ -419,7 +419,7 @@ func agentCmd() {
 
 	if message != "" {
 		ctx := context.Background()
-		response, err := agentLoop.ProcessDirect(ctx, message, sessionKey)
+		response, _, err := agentLoop.ProcessDirect(ctx, message, sessionKey)
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 			os.Exit(1)
@@ -472,7 +472,7 @@ func interactiveMode(agentLoop *agent.AgentLoop, sessionKey string) {
 		}
 
 		ctx := context.Background()
-		response, err := agentLoop.ProcessDirect(ctx, input, sessionKey)
+		response, _, err := agentLoop.ProcessDirect(ctx, input, sessionKey)
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 			continue
@@ -507,7 +507,7 @@ func simpleInteractiveMode(agentLoop *agent.AgentLoop, sessionKey string) {
 		}
 
 		ctx := context.Background()
-		response, err := agentLoop.ProcessDirect(ctx, input, sessionKey)
+		response, _, err := agentLoop.ProcessDirect(ctx, input, sessionKey)
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 			continue
@@ -663,12 +663,13 @@ func gatewayCmd() {
 		fmt.Printf("Error starting channels: %v\n", err)
 	}
 
-	healthServer := health.NewServer(cfg.Gateway.Host, cfg.Gateway.Port)
+	healthServer := health.NewServer(cfg.Gateway.Host, cfg.Gateway.Port, agentLoop)
 	go func() {
 		if err := healthServer.Start(); err != nil && err != http.ErrServerClosed {
 			logger.ErrorCF("health", "Health server error", map[string]interface{}{"error": err.Error()})
 		}
 	}()
+	fmt.Printf("✓ Gateway REST API available at http://%s:%d/chat\n", cfg.Gateway.Host, cfg.Gateway.Port)
 	fmt.Printf("✓ Health endpoints available at http://%s:%d/health and /ready\n", cfg.Gateway.Host, cfg.Gateway.Port)
 
 	go agentLoop.Run(ctx)

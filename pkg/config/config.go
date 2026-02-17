@@ -221,8 +221,8 @@ func DefaultConfig() *Config {
 			Defaults: AgentDefaults{
 				Workspace:           "~/.weaver/workspace",
 				RestrictToWorkspace: true,
-				Provider:            "",
-				Model:               "glm-4.7",
+				Provider:            "gemini",
+				Model:               "gemini-3-flash-preview",
 				MaxTokens:           8192,
 				Temperature:         0.7,
 				MaxToolIterations:   20,

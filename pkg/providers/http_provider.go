@@ -127,11 +127,15 @@ func (p *HTTPProvider) parseResponse(body []byte) (*LLMResponse, error) {
 	var apiResponse struct {
 		Choices []struct {
 			Message struct {
-				Content   string `json:"content"`
-				ToolCalls []struct {
-					ID       string `json:"id"`
-					Type     string `json:"type"`
-					Function *struct {
+				Content          string                 `json:"content"`
+				ReasoningContent string                 `json:"reasoning_content"`
+				Thought          string                 `json:"thought"`
+				ExtraContent     map[string]interface{} `json:"extra_content"`
+				ToolCalls        []struct {
+					ID           string                 `json:"id"`
+					Type         string                 `json:"type"`
+					ExtraContent map[string]interface{} `json:"extra_content"`
+					Function     *struct {
 						Name      string `json:"name"`
 						Arguments string `json:"arguments"`
 					} `json:"function"`
@@ -154,6 +158,11 @@ func (p *HTTPProvider) parseResponse(body []byte) (*LLMResponse, error) {
 	}
 
 	choice := apiResponse.Choices[0]
+
+	reasoning := choice.Message.ReasoningContent
+	if reasoning == "" {
+		reasoning = choice.Message.Thought
+	}
 
 	toolCalls := make([]ToolCall, 0, len(choice.Message.ToolCalls))
 	for _, tc := range choice.Message.ToolCalls {
@@ -179,14 +188,17 @@ func (p *HTTPProvider) parseResponse(body []byte) (*LLMResponse, error) {
 		}
 
 		toolCalls = append(toolCalls, ToolCall{
-			ID:        tc.ID,
-			Name:      name,
-			Arguments: arguments,
+			ID:           tc.ID,
+			Name:         name,
+			Arguments:    arguments,
+			ExtraContent: tc.ExtraContent,
 		})
 	}
 
 	return &LLMResponse{
 		Content:      choice.Message.Content,
+		Reasoning:    reasoning,
+		ExtraContent: choice.Message.ExtraContent,
 		ToolCalls:    toolCalls,
 		FinishReason: choice.FinishReason,
 		Usage:        apiResponse.Usage,

@@ -25,6 +25,7 @@ Weaver is a managed AI agent service designed for **high-density, low-latency or
 - **Light:** <10MB RAM footprint per agent.
 - **Isolated:** Workspace-based directory isolation with strict Docker boundaries.
 - **Universal:** Multi-channel gateway support (Telegram, Discord, Slack) with a unified tool protocol.
+- **Canvas Control:** Integrated `canvas` tool for direct manipulation of the Nest UI (node creation, updates, and organization).
 
 ## Efficiency Comparison
 
