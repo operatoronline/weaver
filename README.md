@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/arch_02.png" alt="Weaver" width="512">
+  <img src="assets/arch_new.png" alt="Weaver" width="512">
 
   <h1>Weaver</h1>
 
