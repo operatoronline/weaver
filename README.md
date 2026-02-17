@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/arch.png" alt="Weaver" width="512">
+  <img src="assets/arch_v2.png" alt="Weaver" width="512">
 
   <h1>Weaver</h1>
 
@@ -29,7 +29,7 @@ Weaver is a managed AI agent service designed for **high-density, low-latency or
 ## Efficiency Comparison
 
 <div align="center">
-  <img src="assets/compare.jpg" alt="Weaver vs OpenClaw Efficiency" width="800">
+  <img src="assets/compare_v2.png" alt="Weaver vs Heavyweight Agents Efficiency" width="800">
 </div>
 
 ## Managed Infrastructure
@@ -39,8 +39,7 @@ Weaver powers the agentic layer of the **Operator Online** ecosystem. It is opti
 ## Concepts
 
 <div align="center">
-  <img src="assets/weaver_concept.png" alt="Weaver Concept" width="400">
-  <img src="assets/weaver_team.png" alt="Weaver Team" width="400">
+  <img src="assets/weaver_team.png" alt="Weaver Team" width="512">
 </div>
 
 ## Quick Start

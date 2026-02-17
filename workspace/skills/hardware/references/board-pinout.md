@@ -1,6 +1,6 @@
 # Board Pinout & Pinmux Reference
 
-## LicheeRV Nano (SG2002)
+## Raspberry Pi (SG2002)
 
 ### I2C Buses
 
@@ -106,7 +106,7 @@ ls /dev/i2c-*
 
 ## NanoKVM
 
-Uses the same SG2002 SoC as LicheeRV Nano. GPIO and I2C access follows the same pinmux procedure. Refer to the LicheeRV Nano section above.
+Uses the same SG2002 SoC as Raspberry Pi. GPIO and I2C access follows the same pinmux procedure. Refer to the Raspberry Pi section above.
 
 Check NanoKVM-specific pin headers for available I2C/SPI lines:
 - https://wiki.operator.onl.com/hardware/en/kvm/NanoKVM/introduction.html
