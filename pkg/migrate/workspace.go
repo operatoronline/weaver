@@ -7,7 +7,7 @@ import (
 
 var migrateableFiles = []string{
 	"AGENTS.md",
-	"SOUL.md",
+	"NEST.md",
 	"USER.md",
 	"TOOLS.md",
 	"HEARTBEAT.md",

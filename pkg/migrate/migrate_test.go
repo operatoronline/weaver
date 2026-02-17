@@ -369,7 +369,7 @@ func TestPlanWorkspaceMigration(t *testing.T) {
 		dstDir := t.TempDir()
 
 		os.WriteFile(filepath.Join(srcDir, "AGENTS.md"), []byte("# Agents"), 0644)
-		os.WriteFile(filepath.Join(srcDir, "SOUL.md"), []byte("# Soul"), 0644)
+		os.WriteFile(filepath.Join(srcDir, "NEST.md"), []byte("# Nest"), 0644)
 		os.WriteFile(filepath.Join(srcDir, "USER.md"), []byte("# User"), 0644)
 
 		actions, err := PlanWorkspaceMigration(srcDir, dstDir, false)
@@ -573,7 +573,7 @@ func TestRunDryRun(t *testing.T) {
 
 	wsDir := filepath.Join(openclawHome, "workspace")
 	os.MkdirAll(wsDir, 0755)
-	os.WriteFile(filepath.Join(wsDir, "SOUL.md"), []byte("# Soul"), 0644)
+	os.WriteFile(filepath.Join(wsDir, "NEST.md"), []byte("# Nest"), 0644)
 	os.WriteFile(filepath.Join(wsDir, "AGENTS.md"), []byte("# Agents"), 0644)
 
 	configData := map[string]interface{}{
@@ -598,7 +598,7 @@ func TestRunDryRun(t *testing.T) {
 	}
 
 	picoWs := filepath.Join(weaverHome, "workspace")
-	if _, err := os.Stat(filepath.Join(picoWs, "SOUL.md")); !os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(picoWs, "NEST.md")); !os.IsNotExist(err) {
 		t.Error("dry run should not create files")
 	}
 	if _, err := os.Stat(filepath.Join(weaverHome, "config.json")); !os.IsNotExist(err) {
@@ -614,7 +614,7 @@ func TestRunFullMigration(t *testing.T) {
 
 	wsDir := filepath.Join(openclawHome, "workspace")
 	os.MkdirAll(wsDir, 0755)
-	os.WriteFile(filepath.Join(wsDir, "SOUL.md"), []byte("# Soul from OpenClaw"), 0644)
+	os.WriteFile(filepath.Join(wsDir, "NEST.md"), []byte("# Nest from OpenClaw"), 0644)
 	os.WriteFile(filepath.Join(wsDir, "AGENTS.md"), []byte("# Agents from OpenClaw"), 0644)
 	os.WriteFile(filepath.Join(wsDir, "USER.md"), []byte("# User from OpenClaw"), 0644)
 
@@ -654,12 +654,12 @@ func TestRunFullMigration(t *testing.T) {
 
 	picoWs := filepath.Join(weaverHome, "workspace")
 
-	soulData, err := os.ReadFile(filepath.Join(picoWs, "SOUL.md"))
+	soulData, err := os.ReadFile(filepath.Join(picoWs, "NEST.md"))
 	if err != nil {
-		t.Fatalf("reading SOUL.md: %v", err)
+		t.Fatalf("reading NEST.md: %v", err)
 	}
-	if string(soulData) != "# Soul from OpenClaw" {
-		t.Errorf("SOUL.md content = %q, want %q", string(soulData), "# Soul from OpenClaw")
+	if string(soulData) != "# Nest from OpenClaw" {
+		t.Errorf("NEST.md content = %q, want %q", string(soulData), "# Nest from OpenClaw")
 	}
 
 	agentsData, err := os.ReadFile(filepath.Join(picoWs, "AGENTS.md"))
@@ -775,7 +775,7 @@ func TestRunConfigOnly(t *testing.T) {
 
 	wsDir := filepath.Join(openclawHome, "workspace")
 	os.MkdirAll(wsDir, 0755)
-	os.WriteFile(filepath.Join(wsDir, "SOUL.md"), []byte("# Soul"), 0644)
+	os.WriteFile(filepath.Join(wsDir, "NEST.md"), []byte("# Nest"), 0644)
 
 	configData := map[string]interface{}{
 		"providers": map[string]interface{}{
@@ -804,7 +804,7 @@ func TestRunConfigOnly(t *testing.T) {
 	}
 
 	picoWs := filepath.Join(weaverHome, "workspace")
-	if _, err := os.Stat(filepath.Join(picoWs, "SOUL.md")); !os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(picoWs, "NEST.md")); !os.IsNotExist(err) {
 		t.Error("config-only should not copy workspace files")
 	}
 }
@@ -815,7 +815,7 @@ func TestRunWorkspaceOnly(t *testing.T) {
 
 	wsDir := filepath.Join(openclawHome, "workspace")
 	os.MkdirAll(wsDir, 0755)
-	os.WriteFile(filepath.Join(wsDir, "SOUL.md"), []byte("# Soul"), 0644)
+	os.WriteFile(filepath.Join(wsDir, "NEST.md"), []byte("# Nest"), 0644)
 
 	configData := map[string]interface{}{
 		"providers": map[string]interface{}{
@@ -844,11 +844,11 @@ func TestRunWorkspaceOnly(t *testing.T) {
 	}
 
 	picoWs := filepath.Join(weaverHome, "workspace")
-	soulData, err := os.ReadFile(filepath.Join(picoWs, "SOUL.md"))
+	soulData, err := os.ReadFile(filepath.Join(picoWs, "NEST.md"))
 	if err != nil {
-		t.Fatalf("reading SOUL.md: %v", err)
+		t.Fatalf("reading NEST.md: %v", err)
 	}
-	if string(soulData) != "# Soul" {
-		t.Errorf("SOUL.md content = %q", string(soulData))
+	if string(soulData) != "# Nest" {
+		t.Errorf("NEST.md content = %q", string(soulData))
 	}
 }

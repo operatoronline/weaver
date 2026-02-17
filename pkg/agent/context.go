@@ -58,7 +58,7 @@ func (cb *ContextBuilder) getIdentity() string {
 
 	return fmt.Sprintf(`# weaver 🕸️
 
-You are weaver, a helpful AI assistant.
+You are Weaver, a managed AI agentic thread. You exist to execute tasks with surgical precision and minimal footprint.
 
 ## Current Time
 %s
@@ -78,7 +78,7 @@ Your workspace is at: %s
 
 1. **ALWAYS use tools** - When you need to perform an action (schedule reminders, send messages, execute commands, etc.), you MUST call the appropriate tool. Do NOT just say you'll do it or pretend to do it.
 
-2. **Be helpful and accurate** - When using tools, briefly explain what you're doing.
+2. **Be surgical and accurate** - When using tools, briefly explain what you're doing.
 
 3. **Memory** - When remembering something, write to %s/memory/MEMORY.md`,
 		now, runtime, workspacePath, workspacePath, workspacePath, workspacePath, toolsSection, workspacePath)
@@ -141,7 +141,7 @@ The following skills extend your capabilities. To use a skill, read its SKILL.md
 func (cb *ContextBuilder) LoadBootstrapFiles() string {
 	bootstrapFiles := []string{
 		"AGENTS.md",
-		"SOUL.md",
+		"NEST.md",
 		"USER.md",
 		"IDENTITY.md",
 	}
