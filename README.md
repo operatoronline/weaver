@@ -36,6 +36,13 @@ Weaver is a managed AI agent service designed for **high-density, low-latency or
 
 Weaver powers the agentic layer of the **Operator Online** ecosystem. It is optimized for the `gemini-3-flash` model, balancing rapid tool execution with minimal resource consumption.
 
+## Concepts
+
+<div align="center">
+  <img src="assets/weaver_concept.png" alt="Weaver Concept" width="400">
+  <img src="assets/weaver_team.png" alt="Weaver Team" width="400">
+</div>
+
 ## Quick Start
 
 ### Spawning an Agent
