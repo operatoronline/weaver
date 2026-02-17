@@ -26,6 +26,12 @@ Weaver is a managed AI agent service designed for **high-density, low-latency or
 - **Isolated:** Workspace-based directory isolation with strict Docker boundaries.
 - **Universal:** Multi-channel gateway support (Telegram, Discord, Slack) with a unified tool protocol.
 
+## Efficiency Comparison
+
+<div align="center">
+  <img src="assets/compare.jpg" alt="Weaver vs OpenClaw Efficiency" width="800">
+</div>
+
 ## Managed Infrastructure
 
 Weaver powers the agentic layer of the **Operator Online** ecosystem. It is optimized for the `gemini-3-flash` model, balancing rapid tool execution with minimal resource consumption.
