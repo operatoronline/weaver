@@ -45,18 +45,20 @@ type AgentLoop struct {
 	summarizing    sync.Map // Tracks which sessions are currently being summarized
 	channelManager *channels.Manager
 	canvasTool     *tools.CanvasTool
+	subagents      *tools.SubagentManager
 }
 
 // processOptions configures how a message is processed
 type processOptions struct {
-	SessionKey      string // Session identifier for history/context
-	Channel         string // Target channel for tool execution
-	ChatID          string // Target chat ID for tool execution
-	UserMessage     string // User message content (may include prefix)
-	DefaultResponse string // Response when LLM returns empty
-	EnableSummary   bool   // Whether to trigger summarization
-	SendResponse    bool   // Whether to send response via bus
-	NoHistory       bool   // If true, don't load session history (for heartbeat)
+	SessionKey       string // Session identifier for history/context
+	Channel          string // Target channel for tool execution
+	ChatID           string // Target chat ID for tool execution
+	UserMessage      string // User message content (may include prefix)
+	DefaultResponse  string // Response when LLM returns empty
+	EnableSummary    bool   // Whether to trigger summarization
+	SendResponse     bool   // Whether to send response via bus
+	NoHistory        bool   // If true, don't load session history (for heartbeat)
+	ResponseMimeType string // If set, request structured output (e.g. "application/json")
 }
 
 // createToolRegistry creates a tool registry with common tools.
@@ -73,6 +75,11 @@ func createToolRegistry(workspace string, restrict bool, cfg *config.Config, msg
 
 	// Shell execution
 	registry.Register(tools.NewExecTool(workspace, restrict))
+
+	// Image generation tool
+	if cfg.Providers.Gemini.APIKey != "" {
+		registry.Register(tools.NewImageTool(workspace, cfg.Providers.Gemini.APIKey))
+	}
 
 	if searchTool := tools.NewWebSearchTool(tools.WebSearchToolOptions{
 		BraveAPIKey:          cfg.Tools.Web.Brave.APIKey,
@@ -154,6 +161,7 @@ func NewAgentLoop(cfg *config.Config, msgBus *bus.MessageBus, provider providers
 		tools:          toolsRegistry,
 		summarizing:    sync.Map{},
 		canvasTool:     canvasTool,
+		subagents:      subagentManager,
 	}
 }
 
@@ -224,16 +232,44 @@ func (al *AgentLoop) RecordLastChatID(chatID string) error {
 }
 
 func (al *AgentLoop) ProcessDirect(ctx context.Context, content, sessionKey string) (string, []tools.UICommand, error) {
-	return al.ProcessDirectWithChannel(ctx, content, sessionKey, "cli", "direct")
+	return al.ProcessDirectWithChannel(ctx, content, sessionKey, "cli", "direct", nil, "")
 }
 
-func (al *AgentLoop) ProcessDirectWithChannel(ctx context.Context, content, sessionKey, channel, chatID string) (string, []tools.UICommand, error) {
+func (al *AgentLoop) ProcessDirectWithChannel(ctx context.Context, content, sessionKey, channel, chatID string, mediaConfig map[string]interface{}, responseMimeType string) (string, []tools.UICommand, error) {
+	// Special handling for image generation requests via REST API
+	if mediaConfig != nil && mediaConfig["type"] == "image" {
+		logger.InfoCF("agent", "Intercepting explicit media generation request", map[string]interface{}{
+			"type":   "image",
+			"prompt": content,
+		})
+
+		toolArgs := map[string]interface{}{
+			"prompt": content,
+		}
+		if res, ok := mediaConfig["size"].(string); ok {
+			toolArgs["resolution"] = res
+		}
+		if ar, ok := mediaConfig["aspect_ratio"].(string); ok {
+			toolArgs["aspect_ratio"] = ar
+		}
+
+		result := al.tools.ExecuteWithContext(ctx, "generate_image", toolArgs, channel, chatID, nil)
+		if result.Err != nil {
+			return "", nil, result.Err
+		}
+		return result.ForLLM, nil, nil
+	}
+
 	msg := bus.InboundMessage{
 		Channel:    channel,
-		SenderID:   "cron",
+		SenderID:   "rest",
 		ChatID:     chatID,
 		Content:    content,
 		SessionKey: sessionKey,
+		Metadata:   make(map[string]string),
+	}
+	if responseMimeType != "" {
+		msg.Metadata["response_mime_type"] = responseMimeType
 	}
 
 	response, err := al.processMessage(ctx, msg)
@@ -290,13 +326,14 @@ func (al *AgentLoop) processMessage(ctx context.Context, msg bus.InboundMessage)
 
 	// Process as user message
 	return al.runAgentLoop(ctx, processOptions{
-		SessionKey:      msg.SessionKey,
-		Channel:         msg.Channel,
-		ChatID:          msg.ChatID,
-		UserMessage:     msg.Content,
-		DefaultResponse: "I've completed processing but have no response to give.",
-		EnableSummary:   true,
-		SendResponse:    false,
+		SessionKey:       msg.SessionKey,
+		Channel:          msg.Channel,
+		ChatID:           msg.ChatID,
+		UserMessage:      msg.Content,
+		DefaultResponse:  "I've completed processing but have no response to give.",
+		EnableSummary:    true,
+		SendResponse:     false,
+		ResponseMimeType: msg.Metadata["response_mime_type"],
 	})
 }
 
@@ -490,10 +527,14 @@ func (al *AgentLoop) runLLMIteration(ctx context.Context, messages []providers.M
 		// Retry loop for context/token errors
 		maxRetries := 2
 		for retry := 0; retry <= maxRetries; retry++ {
-			response, err = al.provider.Chat(ctx, messages, providerToolDefs, al.model, map[string]interface{}{
+			chatOptions := map[string]interface{}{
 				"max_tokens":  8192,
 				"temperature": 0.7,
-			})
+			}
+			if opts.ResponseMimeType == "application/json" {
+				chatOptions["response_format"] = map[string]string{"type": "json_object"}
+			}
+			response, err = al.provider.Chat(ctx, messages, providerToolDefs, al.model, chatOptions)
 
 			if err == nil {
 				break // Success
@@ -833,6 +874,43 @@ func (al *AgentLoop) forceCompression(sessionKey string) {
 		"dropped_msgs": droppedCount,
 		"new_count":    len(newHistory),
 	})
+}
+
+func (al *AgentLoop) GetSystemStatus() map[string]interface{} {
+	status := make(map[string]interface{})
+
+	// Agent info
+	status["model"] = al.model
+	status["workspace"] = al.workspace
+
+	// Sessions
+	sessions := al.sessions.ListSessions()
+	sessionList := make([]map[string]interface{}, 0, len(sessions))
+	for _, s := range sessions {
+		sessionList = append(sessionList, map[string]interface{}{
+			"key":           s.Key,
+			"message_count": len(s.Messages),
+			"updated":       s.Updated.UnixMilli(),
+			"created":       s.Created.UnixMilli(),
+		})
+	}
+	status["sessions"] = sessionList
+
+	// Subagents
+	tasks := al.subagents.ListTasks()
+	taskList := make([]map[string]interface{}, 0, len(tasks))
+	for _, t := range tasks {
+		taskList = append(taskList, map[string]interface{}{
+			"id":      t.ID,
+			"task":    t.Task,
+			"label":   t.Label,
+			"status":  t.Status,
+			"created": t.Created,
+		})
+	}
+	status["subagents"] = taskList
+
+	return status
 }
 
 // GetStartupInfo returns information about loaded tools and skills for logging.

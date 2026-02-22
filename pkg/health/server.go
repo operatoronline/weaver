@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os/exec"
+	"strings"
 	"sync"
 	"time"
 
@@ -40,12 +42,17 @@ type ChatRequest struct {
 	Message    string `json:"message"`
 	Channel    string `json:"channel"`
 	ChatID     string `json:"chat_id"`
+	// For image generation and other media tasks
+	MediaConfig      map[string]interface{} `json:"media_config,omitempty"`
+	Attachments      []map[string]string    `json:"attachments,omitempty"`
+	ResponseMimeType string                 `json:"response_mime_type,omitempty"`
 }
 
 type ChatResponse struct {
-	Response   string            `json:"response"`
-	UICommands []tools.UICommand `json:"ui_commands,omitempty"`
-	Error      string            `json:"error,omitempty"`
+	Response      string            `json:"response"`
+	UICommands    []tools.UICommand `json:"ui_commands,omitempty"`
+	AttachmentURL string            `json:"attachment_url,omitempty"`
+	Error         string            `json:"error,omitempty"`
 }
 
 func NewServer(host string, port int, agentLoop *agent.AgentLoop) *Server {
@@ -60,6 +67,9 @@ func NewServer(host string, port int, agentLoop *agent.AgentLoop) *Server {
 	mux.HandleFunc("/health", s.healthHandler)
 	mux.HandleFunc("/ready", s.readyHandler)
 	mux.HandleFunc("/chat", s.chatHandler)
+	mux.HandleFunc("/admin/status", s.statusHandler)
+	mux.HandleFunc("/admin/service", s.serviceHandler)
+	mux.HandleFunc("/admin/logs", s.logsHandler)
 
 	addr := fmt.Sprintf("%s:%d", host, port)
 	s.server = &http.Server{
@@ -123,6 +133,41 @@ func (s *Server) RegisterCheck(name string, checkFn func() (bool, string)) {
 	}
 }
 
+func (s *Server) statusHandler(w http.ResponseWriter, r *http.Request) {
+	// Simple authorization: check for API key in header (optional, but good for admin)
+	// For now, allow all, but CORS will restrict to allowed domains
+	status := s.agent.GetSystemStatus()
+	status["uptime"] = time.Since(s.startTime).String()
+	status["ready"] = s.ready
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(status)
+}
+
+func (s *Server) serviceHandler(w http.ResponseWriter, r *http.Request) {
+	out, err := exec.Command("systemctl", "status", "weaver").CombinedOutput()
+	result := map[string]string{
+		"output": string(out),
+	}
+	if err != nil {
+		result["error"] = err.Error()
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(result)
+}
+
+func (s *Server) logsHandler(w http.ResponseWriter, r *http.Request) {
+	out, err := exec.Command("journalctl", "-u", "weaver", "-n", "100", "--no-pager").CombinedOutput()
+	result := map[string]string{
+		"output": string(out),
+	}
+	if err != nil {
+		result["error"] = err.Error()
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(result)
+}
+
 func (s *Server) chatHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -151,20 +196,34 @@ func (s *Server) chatHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logger.InfoCF("rest", "Received chat request", map[string]interface{}{
-		"session_key": req.SessionKey,
-		"channel":     req.Channel,
-		"chat_id":     req.ChatID,
-		"message":     req.Message,
+		"session_key":  req.SessionKey,
+		"channel":      req.Channel,
+		"chat_id":      req.ChatID,
+		"message":      req.Message,
+		"has_media":    req.MediaConfig != nil,
+		"attachments":  len(req.Attachments),
 	})
 
-	response, uiCommands, err := s.agent.ProcessDirectWithChannel(r.Context(), req.Message, req.SessionKey, req.Channel, req.ChatID)
-	
+	response, uiCommands, err := s.agent.ProcessDirectWithChannel(r.Context(), req.Message, req.SessionKey, req.Channel, req.ChatID, req.MediaConfig, req.ResponseMimeType)
+
 	resp := ChatResponse{
 		Response:   response,
 		UICommands: uiCommands,
 	}
 	if err != nil {
 		resp.Error = err.Error()
+	}
+
+	// Extract attachment from response if it was an image generation
+	if strings.Contains(response, "IMAGE_GENERATED:") {
+		parts := strings.Split(response, "IMAGE_GENERATED:")
+		if len(parts) > 1 {
+			resp.AttachmentURL = strings.TrimSpace(parts[1])
+			resp.Response = strings.TrimSpace(parts[0])
+		}
+	} else if strings.HasPrefix(response, "data:image") || strings.HasPrefix(response, "http") {
+		// If it's just a URL/data URI, treat it as the attachment
+		resp.AttachmentURL = response
 	}
 
 	w.Header().Set("Content-Type", "application/json")

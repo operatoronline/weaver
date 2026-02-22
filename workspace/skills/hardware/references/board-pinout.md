@@ -71,7 +71,7 @@ ls /dev/spidev*
 ```bash
 # Configure pins using pinmap utility
 # (MaixCAM uses a pinmap tool instead of devmem)
-# Refer to: https://wiki.operator.onl.com/hardware/en/maixcam/gpio.html
+# Refer to: https://wiki.operator.onl/hardware/en/maixcam/gpio.html
 
 # Load i2c-dev
 modprobe i2c-dev
@@ -109,7 +109,7 @@ ls /dev/i2c-*
 Uses the same SG2002 SoC as Raspberry Pi. GPIO and I2C access follows the same pinmux procedure. Refer to the Raspberry Pi section above.
 
 Check NanoKVM-specific pin headers for available I2C/SPI lines:
-- https://wiki.operator.onl.com/hardware/en/kvm/NanoKVM/introduction.html
+- https://wiki.operator.onl/hardware/en/kvm/NanoKVM/introduction.html
 
 ---
 

@@ -90,6 +90,10 @@ func (p *HTTPProvider) Chat(ctx context.Context, messages []Message, tools []Too
 		}
 	}
 
+	if responseFormat, ok := options["response_format"]; ok {
+		requestBody["response_format"] = responseFormat
+	}
+
 	jsonData, err := json.Marshal(requestBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
@@ -293,6 +297,13 @@ func CreateProvider(cfg *config.Config) (LLMProvider, error) {
 				}
 			}
 		case "gemini", "google":
+			if cfg.Providers.Gemini.AuthMethod == "gcloud-adc" || cfg.Providers.Gemini.AuthMethod == "adc" {
+				geminiBase := cfg.Providers.Gemini.APIBase
+				if geminiBase == "" {
+					geminiBase = "https://generativelanguage.googleapis.com/v1beta"
+				}
+				return NewVertexAIProvider(geminiBase, cfg.Providers.Gemini.Proxy)
+			}
 			if cfg.Providers.Gemini.APIKey != "" {
 				apiKey = cfg.Providers.Gemini.APIKey
 				apiBase = cfg.Providers.Gemini.APIBase
@@ -390,7 +401,14 @@ func CreateProvider(cfg *config.Config) (LLMProvider, error) {
 				apiBase = "https://api.openai.com/v1"
 			}
 
-		case (strings.Contains(lowerModel, "gemini") || strings.HasPrefix(model, "google/")) && cfg.Providers.Gemini.APIKey != "":
+		case (strings.Contains(lowerModel, "gemini") || strings.HasPrefix(model, "google/")) && (cfg.Providers.Gemini.APIKey != "" || cfg.Providers.Gemini.AuthMethod == "gcloud-adc" || cfg.Providers.Gemini.AuthMethod == "adc"):
+			if cfg.Providers.Gemini.AuthMethod == "gcloud-adc" || cfg.Providers.Gemini.AuthMethod == "adc" {
+				geminiBase := cfg.Providers.Gemini.APIBase
+				if geminiBase == "" {
+					geminiBase = "https://generativelanguage.googleapis.com/v1beta"
+				}
+				return NewVertexAIProvider(geminiBase, cfg.Providers.Gemini.Proxy)
+			}
 			apiKey = cfg.Providers.Gemini.APIKey
 			apiBase = cfg.Providers.Gemini.APIBase
 			proxy = cfg.Providers.Gemini.Proxy

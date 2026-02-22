@@ -1,7 +1,7 @@
 ---
 name: hardware
 description: Read and control I2C and SPI peripherals on Operator Online boards (Raspberry Pi, MaixCAM, NanoKVM).
-homepage: https://wiki.operator.onl.com/hardware/en/lichee/RV_Nano/1_intro.html
+homepage: https://wiki.operator.onl/hardware/en/lichee/RV_Nano/1_intro.html
 metadata: {"nanobot":{"emoji":"🔧","requires":{"tools":["i2c","spi"]}}}
 ---
 

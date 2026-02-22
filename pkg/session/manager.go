@@ -145,6 +145,18 @@ func (sm *SessionManager) TruncateHistory(key string, keepLast int) {
 	session.Updated = time.Now()
 }
 
+// ListSessions returns all sessions sorted by updated time.
+func (sm *SessionManager) ListSessions() []*Session {
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	sessions := make([]*Session, 0, len(sm.sessions))
+	for _, s := range sm.sessions {
+		sessions = append(sessions, s)
+	}
+	return sessions
+}
+
 // sanitizeFilename converts a session key into a cross-platform safe filename.
 // Session keys use "channel:chatID" (e.g. "telegram:123456") but ':' is the
 // volume separator on Windows, so filepath.Base would misinterpret the key.
