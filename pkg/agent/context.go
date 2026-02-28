@@ -157,6 +157,47 @@ func (cb *ContextBuilder) LoadBootstrapFiles() string {
 	return result
 }
 
+// BuildForgeSystemPrompt returns a minimal system prompt for Forge Studio requests.
+// No agent identity, no tools, no memory — just the Forge design standards and output format.
+func (cb *ContextBuilder) BuildForgeSystemPrompt(channel, chatID string) string {
+	prompt := ""
+
+	if channel == "forge:studio" || (channel == "forge" && chatID == "studio") {
+		prompt = `You MUST respond with valid JSON only. Your response must be a JSON object with a "files" array. Each file object must have "name" (string), "content" (string), and "type" (string) fields.
+Generate a complete, self-contained web application using HTML, CSS, and JavaScript.
+Always include at minimum one HTML file as the entry point.
+
+Do NOT include any text outside the JSON object. Do NOT use markdown code fences.
+
+## Architecture Rules
+- For simple requests (landing page, bio, calculator): single index.html with inlined CSS and JS.
+- For complex apps (dashboards, multi-view apps): separate into index.html, styles.css, and app.js.
+- Always return the COMPLETE content of every file. Never truncate or abbreviate.
+
+## Design Standards
+- Mobile-first, responsive design.
+- OKLCH color model for perceptual harmony.
+- 80% monochrome, 20% functional color.
+- 4px base spacing scale.
+- DM Sans font via Google Fonts CDN.
+- Normalize.css via CDN.
+- Phosphor Icons via CDN.
+- No colored drop shadows, no gradient backgrounds, no flex-wrap (use truncation or horizontal scroll).
+- Production-grade: semantic HTML, ARIA attributes, keyboard navigation.
+
+## CDN Resources
+- Normalize: https://cdn.jsdelivr.net/npm/normalize.css@8/normalize.css
+- Phosphor Icons: https://unpkg.com/@phosphor-icons/web/src/regular/style.css
+- DM Sans: https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap`
+	} else if channel == "forge:plan" || (channel == "forge" && chatID == "plan") {
+		prompt = `You are a planning assistant. Respond with valid JSON only.
+Return a JSON object with a "plan" array containing objects with "assetId" (string), "prompt" (string for image generation), and "suggestedName" (string) fields.
+Do NOT include any text outside the JSON object.`
+	}
+
+	return prompt
+}
+
 func (cb *ContextBuilder) BuildMessages(history []providers.Message, summary string, currentMessage string, media []string, channel, chatID string) []providers.Message {
 	messages := []providers.Message{}
 
@@ -168,7 +209,7 @@ func (cb *ContextBuilder) BuildMessages(history []providers.Message, summary str
 	}
 
 	// Channel-specific output format instructions
-	if channel == "forge" && chatID == "studio" {
+	if channel == "forge:studio" || (channel == "forge" && chatID == "studio") {
 		systemPrompt += `
 
 ## Output Format (STRICT)
@@ -244,7 +285,7 @@ For all projects, use these predefined CDN resources:
 - Use sortable.js for drag-and-drop components.
 - Use marked + DOMPurify to securely render Markdown.`
 	}
-	if channel == "forge" && chatID == "plan" {
+	if channel == "forge:plan" || (channel == "forge" && chatID == "plan") {
 		systemPrompt += `
 
 ## Output Format (STRICT)

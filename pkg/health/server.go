@@ -75,8 +75,8 @@ func NewServer(host string, port int, agentLoop *agent.AgentLoop) *Server {
 	s.server = &http.Server{
 		Addr:         addr,
 		Handler:      mux,
-		ReadTimeout:  120 * time.Second, // Increased for long chat turns
-		WriteTimeout: 120 * time.Second,
+		ReadTimeout:  300 * time.Second, // Increased for long generation turns
+		WriteTimeout: 300 * time.Second,
 	}
 
 	return s

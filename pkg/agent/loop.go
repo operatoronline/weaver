@@ -260,6 +260,12 @@ func (al *AgentLoop) ProcessDirectWithChannel(ctx context.Context, content, sess
 		return result.ForLLM, nil, nil
 	}
 
+	// Fast path for Forge: bypass the full agent loop (system identity, tools, memory, history).
+	// Send only the Forge-specific system prompt + user message directly to the LLM.
+	if channel == "forge" || strings.HasPrefix(channel, "forge:") {
+		return al.processForgeRequest(ctx, content, channel, chatID, responseMimeType)
+	}
+
 	msg := bus.InboundMessage{
 		Channel:    channel,
 		SenderID:   "rest",
@@ -281,6 +287,50 @@ func (al *AgentLoop) ProcessDirectWithChannel(ctx context.Context, content, sess
 	}
 
 	return response, uiCommands, err
+}
+
+// processForgeRequest handles Forge Studio requests with a minimal, direct LLM call.
+// Bypasses the full agent loop (no tools, no memory, no history, no agent identity).
+func (al *AgentLoop) processForgeRequest(ctx context.Context, content, channel, chatID, responseMimeType string) (string, []tools.UICommand, error) {
+	// Build the Forge-specific system prompt (from context.go channel logic)
+	systemPrompt := al.contextBuilder.BuildForgeSystemPrompt(channel, chatID)
+
+	messages := []providers.Message{
+		{Role: "system", Content: systemPrompt},
+		{Role: "user", Content: content},
+	}
+
+	model := "google/gemini-2.5-pro"
+	chatOptions := map[string]interface{}{
+		"max_tokens":  32768,
+		"temperature": 0.7,
+	}
+	if responseMimeType == "application/json" {
+		chatOptions["response_format"] = map[string]string{"type": "json_object"}
+	}
+
+	logger.InfoCF("agent", "Forge direct LLM call", map[string]interface{}{
+		"model":       model,
+		"max_tokens":  32768,
+		"prompt_len":  len(content),
+		"system_len":  len(systemPrompt),
+	})
+
+	response, err := al.provider.Chat(ctx, messages, nil, model, chatOptions)
+	if err != nil {
+		return "", nil, err
+	}
+
+	finalContent := ""
+	if response != nil {
+		finalContent = response.Content
+	}
+
+	logger.InfoCF("agent", "Forge response", map[string]interface{}{
+		"content_len": len(finalContent),
+	})
+
+	return finalContent, nil, nil
 }
 
 // ProcessHeartbeat processes a heartbeat request without session history.
@@ -498,8 +548,11 @@ func (al *AgentLoop) runLLMIteration(ctx context.Context, messages []providers.M
 				"max":       al.maxIterations,
 			})
 
-		// Build tool definitions
-		providerToolDefs := al.tools.ToProviderDefs()
+		// Build tool definitions (skip for Forge — pure generation, no tool calls)
+		var providerToolDefs []providers.ToolDefinition
+		if opts.Channel != "forge" && !strings.HasPrefix(opts.Channel, "forge:") {
+			providerToolDefs = al.tools.ToProviderDefs()
+		}
 
 		// Log LLM request details
 		logger.DebugCF("agent", "LLM request",
@@ -527,14 +580,28 @@ func (al *AgentLoop) runLLMIteration(ctx context.Context, messages []providers.M
 		// Retry loop for context/token errors
 		maxRetries := 2
 		for retry := 0; retry <= maxRetries; retry++ {
-			chatOptions := map[string]interface{}{
-				"max_tokens":  8192,
-				"temperature": 0.7,
+			// Channel-aware defaults: Forge Studio needs high output for multi-file generation
+			maxTokens := 8192
+			temperature := 0.7
+			if opts.Channel == "forge" || strings.HasPrefix(opts.Channel, "forge:") {
+				maxTokens = 32768
+				temperature = 0.7
 			}
+
+			chatOptions := map[string]interface{}{
+				"max_tokens":  maxTokens,
+				"temperature": temperature,
+			}
+
 			if opts.ResponseMimeType == "application/json" {
 				chatOptions["response_format"] = map[string]string{"type": "json_object"}
 			}
-			response, err = al.provider.Chat(ctx, messages, providerToolDefs, al.model, chatOptions)
+			// Use Gemini 3.1 Pro for Forge Studio (higher quality code generation)
+			model := al.model
+			if opts.Channel == "forge" || strings.HasPrefix(opts.Channel, "forge:") {
+				model = "google/gemini-2.5-pro"
+			}
+			response, err = al.provider.Chat(ctx, messages, providerToolDefs, model, chatOptions)
 
 			if err == nil {
 				break // Success
