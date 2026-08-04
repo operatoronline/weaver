@@ -300,7 +300,7 @@ func (al *AgentLoop) processForgeRequest(ctx context.Context, content, channel, 
 		{Role: "user", Content: content},
 	}
 
-	model := "google/gemini-2.5-pro"
+	model := "google/gemini-3.1-pro-preview"
 	chatOptions := map[string]interface{}{
 		"max_tokens":  65536,
 		"temperature": 0.7,
@@ -596,10 +596,10 @@ func (al *AgentLoop) runLLMIteration(ctx context.Context, messages []providers.M
 			if opts.ResponseMimeType == "application/json" {
 				chatOptions["response_format"] = map[string]string{"type": "json_object"}
 			}
-			// Use Gemini 2.5 Pro for Forge Studio (best available on Vertex AI)
+			// Use Gemini 3.1 Pro for Forge Studio via Vertex AI
 			model := al.model
 			if opts.Channel == "forge" || strings.HasPrefix(opts.Channel, "forge:") {
-				model = "google/gemini-2.5-pro"
+				model = "google/gemini-3.1-pro-preview"
 			}
 			response, err = al.provider.Chat(ctx, messages, providerToolDefs, model, chatOptions)
 

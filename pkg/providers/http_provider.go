@@ -300,7 +300,7 @@ func CreateProvider(cfg *config.Config) (LLMProvider, error) {
 			if cfg.Providers.Gemini.AuthMethod == "gcloud-adc" || cfg.Providers.Gemini.AuthMethod == "adc" {
 				geminiBase := cfg.Providers.Gemini.APIBase
 				if geminiBase == "" {
-					geminiBase = "https://generativelanguage.googleapis.com/v1beta"
+					geminiBase = "https://aiplatform.googleapis.com/v1beta1/projects/operator-online/locations/us-central1/endpoints/openapi"
 				}
 				return NewVertexAIProvider(geminiBase, cfg.Providers.Gemini.Proxy)
 			}
@@ -405,7 +405,7 @@ func CreateProvider(cfg *config.Config) (LLMProvider, error) {
 			if cfg.Providers.Gemini.AuthMethod == "gcloud-adc" || cfg.Providers.Gemini.AuthMethod == "adc" {
 				geminiBase := cfg.Providers.Gemini.APIBase
 				if geminiBase == "" {
-					geminiBase = "https://generativelanguage.googleapis.com/v1beta"
+					geminiBase = "https://aiplatform.googleapis.com/v1beta1/projects/operator-online/locations/us-central1/endpoints/openapi"
 				}
 				return NewVertexAIProvider(geminiBase, cfg.Providers.Gemini.Proxy)
 			}
